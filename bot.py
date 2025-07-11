@@ -62,7 +62,7 @@ async def main():
     await bot.start()
     await assistant.start()
     print("Bot and assistant started.")
-    await bot.idle()
+    await asyncio.Event().wait()  # ✅ এখানে fix
 
 if __name__ == "__main__":
     try:
