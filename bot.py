@@ -62,7 +62,18 @@ async def main():
     await bot.start()
     await assistant.start()
     print("Bot and assistant started.")
-    await bot.idle()  # ✅ এখানে idle রাখ, আর কিছু দরকার নেই
+    await bot.idle()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+    except RuntimeError as e:
+        if str(e) == "This event loop is already running":
+            print("Event loop already running. Using alternative method.")
+            import nest_asyncio
+            nest_asyncio.apply()
+            loop = asyncio.get_event_loop()
+            loop.run_until_complete(main())
+        else:
+            raise
