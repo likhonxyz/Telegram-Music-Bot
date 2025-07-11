@@ -1,7 +1,6 @@
 import os
 import asyncio
 from pyrogram import Client, filters
-from pytgcalls import PyTgCalls
 from yt_dlp import YoutubeDL
 
 API_ID = int(os.getenv("API_ID"))
@@ -11,7 +10,6 @@ SESSION_STRING = os.getenv("SESSION_STRING")
 
 bot = Client("bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 assistant = Client(name="assistant", api_id=API_ID, api_hash=API_HASH, session_string=SESSION_STRING)
-pytgcalls = PyTgCalls(assistant)
 
 ydl_opts = {
     'format': 'bestaudio/best',
@@ -47,7 +45,6 @@ async def start(_, message):
     await message.reply_text(
         "🎧 ʟᴀᴍɪʏᴀ x ᴍᴜꜱɪᴄ এ স্বাগতম!\n"
         "✅ /play [song name] লিখে গান চালাও\n"
-        "✅ group voice chat-এ গান চালানো (assistant ready)\n"
         "Enjoy your music! 💙"
     )
 
@@ -64,7 +61,6 @@ async def play(_, message):
 async def main():
     await bot.start()
     await assistant.start()
-    await pytgcalls.start()
     print("Bot and assistant started.")
     await asyncio.get_event_loop().run_forever()
 
