@@ -1,4 +1,4 @@
-# ʟᴀᴍɪʏᴀ x ᴍᴜꜱɪᴄ Bot (Session String Ready)
+# Music Bot (Session String Ready)
 
 ## Features
 - YouTube download + play
