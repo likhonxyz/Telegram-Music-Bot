@@ -1,4 +1,3 @@
-
 import os
 import asyncio
 from pyrogram import Client, filters
@@ -46,12 +45,9 @@ async def download_song(query):
 @bot.on_message(filters.command("start"))
 async def start(_, message):
     await message.reply_text(
-        "🎧 ʟᴀᴍɪʏᴀ x ᴍᴜꜱɪᴄ এ স্বাগতম!
-"
-        "✅ /play [song name] লিখে গান চালাও
-"
-        "✅ group voice chat-এ গান চালানো (assistant ready)
-"
+        "🎧 ʟᴀᴍɪʏᴀ x ᴍᴜꜱɪᴄ এ স্বাগতম!\n"
+        "✅ /play [song name] লিখে গান চালাও\n"
+        "✅ group voice chat-এ গান চালানো (assistant ready)\n"
         "Enjoy your music! 💙"
     )
 
