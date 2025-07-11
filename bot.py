@@ -62,7 +62,7 @@ async def main():
     await bot.start()
     await assistant.start()
     print("Bot and assistant started.")
-    await bot.idle()  # ✅ এই লাইন ব্যবহার করো, run_forever এর দরকার নেই
+    await bot.idle()  # ✅ এখানে idle রাখ, আর কিছু দরকার নেই
 
 if __name__ == "__main__":
     asyncio.run(main())
