@@ -2,7 +2,7 @@ import os
 import asyncio
 from pyrogram import Client, filters
 from pytgcalls import PyTgCalls, idle
-from pytgcalls.types.input_streams import AudioPiped
+from pytgcalls.types.input_stream import AudioPiped
 from yt_dlp import YoutubeDL
 
 API_ID = int(os.environ.get("API_ID"))
