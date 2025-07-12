@@ -2,7 +2,7 @@ import os
 import asyncio
 from pyrogram import Client, filters
 from pytgcalls import PyTgCalls, idle
-from pytgcalls.types.input_stream import AudioPiped
+from pytgcalls.types.input_streams import AudioPiped
 from yt_dlp import YoutubeDL
 
 API_ID = int(os.environ.get("API_ID"))
@@ -58,7 +58,7 @@ async def play(_, message):
     chat_id = message.chat.id
 
     if len(message.command) < 2:
-        await message.reply_text("🎵 দয়া করে গান এর নাম বা লিংক দাও!")
+        await message.reply_text("🎵 দয়া করে গান এর নাম বা লিংক দাও!")
         return
 
     query = " ".join(message.command[1:])
