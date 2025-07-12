@@ -2,7 +2,7 @@ import os
 import asyncio
 from pyrogram import Client, filters
 from pytgcalls import PyTgCalls, idle
-from pytgcalls.types.input_streams import AudioPiped
+from pytgcalls.types.input_stream import AudioPiped
 from yt_dlp import YoutubeDL
 
 API_ID = int(os.environ.get("API_ID"))
@@ -47,10 +47,10 @@ def _download(query):
 @bot.on_message(filters.command("start"))
 async def start(_, message):
     await message.reply_text(
-        "🎧 স্বাগতম Shyx-style Music Bot-এ!\n\n"
+        "🎧 স্বাগতম Shyx Music Bot-এ!\n\n"
         "✅ `/play [song name or url]` দিয়ে গান চালাও\n"
-        "✅ Assistant কে group call-এ add করে রাখো\n\n"
-        "Enjoy your music! 💙"
+        "✅ Assistant কে VC তে add করে রাখো\n\n"
+        "Enjoy! 💙"
     )
 
 @bot.on_message(filters.command("play") & filters.group)
@@ -83,7 +83,7 @@ async def main():
     await bot.start()
     await assistant.start()
     await pytgcalls.start()
-    print("✅ Bot & Assistant চালু হয়েছে, প্রস্তুত!")
+    print("✅ Bot & Assistant চালু হয়েছে!")
     await idle()
     await bot.stop()
     await assistant.stop()
