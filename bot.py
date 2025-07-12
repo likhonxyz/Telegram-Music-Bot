@@ -1,92 +1,53 @@
-import os
-import asyncio
 from pyrogram import Client, filters
-from pytgcalls import PyTgCalls, idle
+from pytgcalls import PyTgCalls
 from pytgcalls.types.input_stream import AudioPiped
-from yt_dlp import YoutubeDL
+from pytgcalls.types.stream import StreamAudioEnded
+from pytgcalls.types import Update
+import yt_dlp
 
-API_ID = int(os.environ.get("API_ID"))
-API_HASH = os.environ.get("API_HASH")
-BOT_TOKEN = os.environ.get("BOT_TOKEN")
-SESSION_STRING = os.environ.get("SESSION_STRING")
+api_id = 1234567  # তোমার API ID
+api_hash = "YOUR_API_HASH"
+bot_token = "YOUR_BOT_TOKEN"
 
-bot = Client("MusicBot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
-assistant = Client("assistant", api_id=API_ID, api_hash=API_HASH, session_string=SESSION_STRING)
+app = Client("music_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
+pytgcalls = PyTgCalls(app)
 
-pytgcalls = PyTgCalls(assistant)
-
-ydl_opts = {
-    'format': 'bestaudio/best',
-    'outtmpl': 'downloads/%(id)s.%(ext)s',
-    'noplaylist': True,
-    'quiet': True,
-    'nocheckcertificate': True,
-    'ignoreerrors': False,
-    'logtostderr': False,
-    'no_warnings': True,
-    'default_search': 'ytsearch',
-    'source_address': '0.0.0.0'
-}
-
-os.makedirs("downloads", exist_ok=True)
-
-async def download_song(query):
-    loop = asyncio.get_event_loop()
-    file_path = await loop.run_in_executor(None, lambda: _download(query))
-    return file_path
-
-def _download(query):
-    with YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(query, download=True)
-        if 'entries' in info:
-            info = info['entries'][0]
-        id_ = info.get("id")
-        ext = info.get("ext")
-        return f"downloads/{id_}.{ext}"
-
-@bot.on_message(filters.command("start"))
-async def start(_, message):
-    await message.reply_text(
-        "🎧 স্বাগতম Shyx Music Bot-এ!\n\n"
-        "✅ `/play [song name or url]` দিয়ে গান চালাও\n"
-        "✅ Assistant কে VC তে add করে রাখো\n\n"
-        "Enjoy! 💙"
-    )
-
-@bot.on_message(filters.command("play") & filters.group)
+@app.on_message(filters.command("play") & filters.group)
 async def play(_, message):
-    chat_id = message.chat.id
-
     if len(message.command) < 2:
-        await message.reply_text("🎵 দয়া করে গান এর নাম বা লিংক দাও!")
-        return
+        return await message.reply_text("দয়া করে একটি ইউটিউব লিংক বা সার্চ টার্ম দিন!")
 
-    query = " ".join(message.command[1:])
-    status = await message.reply_text(f"🔍 সার্চ করা হচ্ছে: `{query}`")
+    query = message.text.split(None, 1)[1]
 
-    try:
-        file_path = await download_song(query)
-    except Exception as e:
-        await status.edit(f"❌ Error: {e}")
-        return
+    # ইউটিউব থেকে ডাউনলোড
+    ydl_opts = {
+        "format": "bestaudio/best",
+        "quiet": True,
+        "extract_flat": "in_playlist",
+        "outtmpl": "downloads/%(id)s.%(ext)s",
+        "nocheckcertificate": True,
+    }
 
-    try:
-        await pytgcalls.join_group_call(
-            chat_id,
-            AudioPiped(file_path),
-        )
-        await status.edit("✅ গান চলছে! 🎶")
-    except Exception as e:
-        await status.edit(f"❌ VC তে যোগ দিতে ব্যর্থ: {e}")
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(query, download=False)
+        url = info["url"]
 
-async def main():
-    await bot.start()
-    await assistant.start()
-    await pytgcalls.start()
-    print("✅ Bot & Assistant চালু হয়েছে!")
-    await idle()
-    await bot.stop()
-    await assistant.stop()
+    audio = AudioPiped(url)
 
-if __name__ == "__main__":
-    asyncio.run(main())
+    await pytgcalls.join_group_call(
+        message.chat.id,
+        audio,
+    )
+    await message.reply_text("✅ গান বাজানো শুরু হয়েছে!")
+
+@pytgcalls.on_stream_end()
+async def on_stream_end(_, update: Update):
+    await pytgcalls.leave_group_call(update.chat_id)
+
+@app.on_message(filters.command("stop") & filters.group)
+async def stop(_, message):
+    await pytgcalls.leave_group_call(message.chat.id)
+    await message.reply_text("⛔ গান বন্ধ করা হয়েছে।")
+
+pytgcalls.start()
+app.run()
