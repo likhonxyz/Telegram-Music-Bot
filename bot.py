@@ -2,7 +2,6 @@ import os
 import asyncio
 from pyrogram import Client, filters
 from pytgcalls import PyTgCalls, idle
-from pytgcalls.types.input_stream import InputStream
 from pytgcalls.types.input_stream import AudioPiped
 from yt_dlp import YoutubeDL
 
@@ -59,11 +58,11 @@ async def play(_, message):
     chat_id = message.chat.id
 
     if len(message.command) < 2:
-        await message.reply_text("Please provide a song name or URL.")
+        await message.reply_text("🎵 দয়া করে গান এর নাম বা লিংক দাও!")
         return
 
     query = " ".join(message.command[1:])
-    status = await message.reply_text(f"🔍 Searching: {query}")
+    status = await message.reply_text(f"🔍 সার্চ করা হচ্ছে: `{query}`")
 
     try:
         file_path = await download_song(query)
@@ -71,32 +70,20 @@ async def play(_, message):
         await status.edit(f"❌ Error: {e}")
         return
 
-    if not pytgcalls.active_calls.get(chat_id):
-        try:
-            await pytgcalls.join_group_call(
-                chat_id,
-                InputStream(
-                    AudioPiped(file_path)
-                ),
-                stream_type="local_stream"
-            )
-            await status.edit("✅ Playing in voice chat!")
-        except Exception as e:
-            await status.edit(f"❌ Failed to join VC: {e}")
-    else:
-        await pytgcalls.change_stream(
+    try:
+        await pytgcalls.join_group_call(
             chat_id,
-            InputStream(
-                AudioPiped(file_path)
-            )
+            AudioPiped(file_path),
         )
-        await status.edit("✅ Changed song!")
+        await status.edit("✅ গান চলছে! 🎶")
+    except Exception as e:
+        await status.edit(f"❌ VC তে যোগ দিতে ব্যর্থ: {e}")
 
 async def main():
     await bot.start()
     await assistant.start()
     await pytgcalls.start()
-    print("✅ Bot & Assistant started. Waiting for commands...")
+    print("✅ Bot & Assistant চালু হয়েছে, প্রস্তুত!")
     await idle()
     await bot.stop()
     await assistant.stop()
